@@ -46,6 +46,7 @@ ExportedObj/
 *.avi
 *.mp4
 *.mp3
+*.wav
 #bakery
 /[Aa]ssets/Editor/x64/Bakery*
 
