@@ -1,0 +1,955 @@
+<head>
+  <style>
+      body {
+          margin: 0;
+      }
+
+      .body-wrap {
+          background-color: #fff;
+          width: 100%;
+          min-height: 500px;
+          margin: 0 auto;
+          font-size: 12px;
+      }
+
+      .pres-timeline {
+          font-family: roboto, helvetica, sans-serif;
+          font-size: 12px;
+          color: #4A4A4A;
+          width: 100%;
+          margin: 30px 0;
+      }
+      .pres-timeline > div > div {
+          padding: 1em 0;
+          box-sizing: border-box;
+      }
+      .pres-timeline .periods-container, .pres-timeline .cards-container {
+          overflow: hidden;
+          box-sizing: border-box;
+          position: relative;
+          min-height: 100px;
+          transition: height 0.5s ease-in-out;
+          background-color: #FFF;
+      }
+      .periods-container:before {
+          background-image: linear-gradient(left, #FFF, rgba(248, 248, 248, 0));
+          left: 0;
+          content: "";
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          height: 100%;
+          width: 100px;
+      }
+      .periods-container:after {
+          background-image: linear-gradient(right, #FFF, rgba(248, 248, 248, 0));
+          right: 0;
+          content: "";
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          height: 100%;
+          width: 100px;
+      }
+      .periods-container .btn-back, .periods-container .btn-next {
+          display: inline-block;
+          width: 15%;
+          height: 100%;
+          position: absolute;
+          cursor: pointer;
+          z-index: 10;
+          transition: 0.3s ease-in-out;
+      }
+      .periods-container .btn-back:hover, .periods-container .btn-next:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+      }
+      .periods-container .btn-back.hide, .periods-container .btn-next.hide {
+          display: none;
+      }
+      .periods-container .btn-back {
+          left: 0;
+      }
+      .periods-container .btn-next {
+          right: 0;
+      }
+      .periods-container section {
+          width: 70%;
+          height: 0;
+          position: absolute;
+          margin-left: 15%;
+          border-bottom: 5px solid #dfe3e6;
+          padding: 1.5em;
+          box-sizing: border-box;
+          transition: transform 0.3s ease-in-out, opacity 0.2s ease, height 0.3s ease;
+          bottom: 0;
+          opacity: 0;
+          background-color: #fff;
+      }
+      .periods-container section.active {
+          height: auto;
+          opacity: 1;
+          transform: translateX(0);
+          z-index: 5;
+      }
+      .periods-container section.active .title, .periods-container section.active p {
+          display: block;
+      }
+      .periods-container section.prev {
+          height: auto;
+          opacity: 0.4;
+          transform: translateX(-100%);
+          z-index: 0;
+      }
+      .periods-container section.prev .year {
+          text-align: right;
+      }
+      .periods-container section.next {
+          height: auto;
+          opacity: 0.4;
+          transform: translateX(100%);
+          z-index: 0;
+      }
+      .periods-container section .year {
+          font-size: 20px;
+          font-weight: 400;
+      }
+      .periods-container section .title {
+          color: #4A4A4A;
+          font-size: 28px;
+          font-weight: 400;
+          display: none;
+      }
+      .periods-container section p {
+          display: none;
+      }
+
+      .timeline-container {
+          position: relative;
+          width: 100%;
+          height: 50px;
+          overflow: hidden;
+      }
+      .timeline-container:before {
+          background-image: linear-gradient(left, #FFF, rgba(248, 248, 248, 0));
+          left: 0;
+          content: "";
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          height: 100%;
+          width: 100px;
+      }
+      .timeline-container:after {
+          background-image: linear-gradient(right, #FFF, rgba(248, 248, 248, 0));
+          right: 0;
+          content: "";
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          height: 100%;
+          width: 100px;
+      }
+      .timeline-container .timeline {
+          position: absolute;
+          display: block;
+          height: 50px;
+          transition: left 0.3s ease-in-out;
+      }
+      .timeline-container .timeline ol {
+          display: block;
+          width: 100%;
+          height: 2px;
+          background-color: #dfe3e6;
+          list-style: none;
+          padding-left: 210px;
+          padding-right: 300px;
+      }
+      .timeline-container .timeline ol li {
+          display: inline-block;
+          padding: 5px;
+          margin-top: -11px;
+          margin-left: 80px;
+          border-radius: 50%;
+          border: 3px solid #7f9298;
+          background-color: #FFF;
+          position: relative;
+          cursor: pointer;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .timeline-container .timeline ol li.active {
+          box-shadow: none;
+      }
+      .timeline-container .timeline ol li.active:before {
+          content: "";
+          display: block;
+          height: 25px;
+          width: 1px;
+          position: absolute;
+          top: -25px;
+          transition: opacity 0.3s ease-in-out;
+      }
+      .timeline-container .timeline ol li.active:after {
+          content: "";
+          display: block;
+          height: 25px;
+          width: 1px;
+          position: absolute;
+          bottom: -25px;
+          transition: opacity 0.3s ease-in-out;
+      }
+      .timeline-container .btn-back, .timeline-container .btn-next {
+          display: inline-block;
+          position: absolute;
+          cursor: pointer;
+          margin-top: -2px;
+          z-index: 11;
+          transition: all 0.3s ease;
+      }
+      .timeline-container .btn-back.hide, .timeline-container .btn-next.hide {
+          display: none;
+      }
+      .timeline-container .btn-back:hover, .timeline-container .btn-next:hover {
+          border-color: #7f9298;
+      }
+      .timeline-container .btn-back {
+          left: 1em;
+      }
+      .timeline-container .btn-next {
+          right: 1em;
+      }
+
+      .cards-container:before {
+          background-image: linear-gradient(left, #FFF, rgba(248, 248, 248, 0));
+          left: 0;
+          content: "";
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          height: 100%;
+          width: 100px;
+      }
+      .cards-container:after {
+          background-image: linear-gradient(right, #FFF, rgba(248, 248, 248, 0));
+          right: 0;
+          content: "";
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          height: 100%;
+          width: 100px;
+      }
+      .cards-container section {
+          width: 70%;
+          position: absolute;
+          margin-left: 15%;
+          margin-bottom: 2em;
+          border: 1px solid #f5f7f6;
+          padding: 1.5em;
+          box-sizing: border-box;
+          transition: transform 0.3s ease-in-out;
+          top: 0;
+          opacity: 0;
+          border-radius: 8px;
+          background-color: #fff;
+          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+      }
+      .cards-container section.active {
+          height: auto;
+          opacity: 1;
+          transform: translateX(0);
+          z-index: 5;
+      }
+      .cards-container section.prev {
+          height: auto;
+          opacity: 0.4;
+          transform: translateX(-105%);
+          z-index: 0;
+      }
+      .cards-container section.next {
+          height: auto;
+          opacity: 0.4;
+          transform: translateX(105%);
+          z-index: 0;
+      }
+      .cards-container section .year {
+          text-align: center;
+          font-size: 16px;
+          margin: 0;
+      }
+      .cards-container section .title {
+          font-weight: 400;
+      }
+      .cards-container section img {
+          width: 100%;
+      }
+  </style>
+  <title></title>
+</head>
+
+<div class="body-wrap">
+  <!-- # component starts -->
+  <div class="pres-timeline" id="this-timeline">
+    <!-- ###   -->
+    <!--   <div class="periods-section"> -->
+    <div class="periods-container">
+      <section class="period-single" period="period1">
+        <h4 class="year">Vodafone</h4>
+      </section>
+      <section class="period-single" period="period2">
+        <h4 class="year">Ziggo</h4>
+      </section>
+      <section class="period-single" period="period3">
+        <h4 class="year">VodafoneZiggo</h4>
+      </section>
+    </div>
+    <!--   </div> -->
+    <!-- ### -->
+    <!--   <div class="timeline-section"> -->
+    <div class="timeline-container">
+      <!--     # timeline graphic place holder - fill with js -->
+      <div class="timeline"></div>
+
+      <div class="btn-back"><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path fill="none" d="M0 0h30v30H0z"/><path fill="#D8D8D8" fill-rule="evenodd" d="M11.828 15l7.89-7.89-2.83-2.828L6.283 14.89l.11.11-.11.11L16.89 25.72l2.828-2.83"/></svg></div>
+      <div class="btn-next"><svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path fill="none" d="M0 0h30v30H0z"/><path fill="#D8D8D8" fill-rule="evenodd" d="M18.172 14.718l-7.89-7.89L13.112 4l10.606 10.607-.11.11.11.11-10.608 10.61-2.828-2.83 7.89-7.89"/></svg></div>
+    </div>
+    <!--   </div> -->
+    <!-- ### -->
+    <!--   <div class="cards-section"> -->
+    <div class="cards-container">
+      <section class="card-single active" period="period1">
+        <h4 class="year">1995</h4>
+        <h2 class="title">Start Vodafone</h2>
+        <div class="content">
+          <p>Telecom provider Libertel komt op de Nederlandse markt met Vodafone als 1 van de shareholders.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">1996</h4>
+        <h2 class="title">Start UPC</h2>
+        <div class="content">
+          <p>UPC Nederland komt voort uit de consolidatie van verschillende kabel- en energieleveranciers.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">1997</h4>
+        <h2 class="title">Start prepaid</h2>
+        <div class="content">
+          <p>Libertel introduceert als eerste bedrijf in Nederland prepaid: bellen zonder abonnement.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">1997</h4>
+        <h2 class="title">Start internet diensten</h2>
+        <div class="content">
+          <p>UPC biedt internetdiensten via de kabel.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">1998</h4>
+        <h2 class="title">Introductie digitale TV</h2>
+        <div class="content">
+          <p>Digitale TV verschijnt op de Nederlandse markt: klanten krijgen toegang tot honderden zenders in plaats van het vorige maximum van 30.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2002</h4>
+        <h2 class="title">Libertel wordt Vodafone</h2>
+        <div class="content">
+          <p>Het merk Libertel verdwijnt en wordt Vodafone. Vodafone introduceert de Vodafone Live mobiel internet portal. Vodafone introduceert als eerste telecomaanbieder mobiele internet diensten in het buitenland. Het werd ook mogelijk om video's op een mobiel apparaat te bekijken.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2004</h4>
+        <h2 class="title">Start 3G netwerk</h2>
+        <div class="content">
+          <p>Vodafone wordt de eerste telecomprovider die een 3G-breedbandnetwerk aanbiedt.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2005</h4>
+        <h2 class="title">Start Liberty Global en introductie alles in 1 pakketten</h2>
+        <div class="content">
+          <p>Liberty Global ontstaat uit de fusie van twee internationale kabelbedrijven. Het bedrijf bedient 23 miljoen huishoudens in 18 landen. Het is ook het eerste bedrijf dat alles-in-één pakketten introduceert voor telefoon-, tv- en internetdiensten.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2006</h4>
+        <h2 class="title">Vodafone biedt vaste diensten aan bij bedrijven</h2>
+        <div class="content">
+          <p>Vodafone neemt het bedrijf TNF over en gaat bedrijven communicatie diensten aanbieden via een vast netwerk.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2007</h4>
+        <h2 class="title">Vodafone breidt diensten uit voor particulier</h2>
+        <div class="content">
+          <p>Vodafone biedt klanten naast mobiele diensten ook vast internet en telefonie.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2007</h4>
+        <h2 class="title">Introductie interactieve TV</h2>
+        <div class="content">
+          <p>Interactieve TV verovert Nederland: klanten kunnen live programma's pauzeren en gemiste programma's terugkijken. High definition zorgt voor haarscherpe beelden.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2008</h4>
+        <h2 class="title">Ontstaan van Ziggo</h2>
+        <div class="content">
+          <p>De gefuseerde Nederlandse kabelbedrijven @Home, Casema en Multikabel gaan verder onder de naam Ziggo.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2010</h4>
+        <h2 class="title">Uitrol van het snelste netwerk haalt wereld nieuws</h2>
+        <div class="content">
+          <p>De uitrol van het snelste netwerk (28,8 megabit per seconde) haalt wereldnieuws door een knotsgekke campagne: Formule 1-coureur Lewis Hamilton racet tegen het Vodafone-netwerk op een landingsbaan op Schiphol.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2011</h4>
+        <h2 class="title">Vodafone neemt BelCompany over, en introduceert Vodafone Thuis</h2>
+        <div class="content">
+          <p>Vodafone neemt BelCompany over. Met Vodafone Thuis begint Vodafone een combinatie van internet-, spraak- en tv-diensten aan te bieden.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2012</h4>
+        <h2 class="title">Overname Telespectrum en introductie op de zakelijke markt voor Vodafone</h2>
+        <div class="content">
+          <p>Door de overname van Telespectrum kan Vodafone nu vaste en geïntegreerde telecomoplossingen aanbieden aan de zakelijke markt. De ouderwetse telefooncentrale maakt plaats voor cloudtelefonie.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2012</h4>
+        <h2 class="title">UPC komt met de Horizon Box</h2>
+        <div class="content">
+          <p>UPC presenteert de Horizon Box en tilt daarmee interactieve TV naar een hoger niveau.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2012</h4>
+        <h2 class="title">Ziggo introduceert Wi-Fi Spots</h2>
+        <div class="content">
+          <p>Ziggo introduceert WiFi Spots: locaties waar klanten draadloos kunnen internetten zonder dat ze in de buurt van een eigen modem hoeven te zijn.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2012</h4>
+        <h2 class="title">Opening Ziggo Dome</h2>
+        <div class="content">
+          <p>Concertlocatie Ziggo Dome opent haar deuren in Amsterdam.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2013</h4>
+        <h2 class="title">Komst van mobiele betalingen zonder aanraking</h2>
+        <div class="content">
+          <p>Met SmartPass en Wallet introduceert Vodafone als eerste telecomaanbieder in Nederland mobiel betalen zonder aanraking.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2014</h4>
+        <h2 class="title">Landelijk 4G en overname Nexct</h2>
+        <div class="content">
+          <p>Landelijke 4G-dekking wordt een realiteit. Vodafone neemt Nexct over, een bedrijf gespecialiseerd in communicatiediensten voor werken op afstand.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2014</h4>
+        <h2 class="title">Fuseren UPC en Ziggo</h2>
+        <div class="content">
+          <p>UPC Nederland en Ziggo fuseren. Het gefuseerde bedrijf gaat verder onder de naam 'Ziggo'. Liberty Global is het moederbedrijf.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2015</h4>
+        <h2 class="title">Vodafone neemt mITE Systems over</h2>
+        <div class="content">
+          <p>Vodafone neemt mITE Systems over, een bedrijf gespecialiseerd in clouddiensten en beveiliging.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2015</h4>
+        <h2 class="title">Ontstaan Ziggo Sport</h2>
+        <div class="content">
+          <p>Ziggo richt een eigen sportzender op: Ziggo Sport, waarmee kijkers bijvoorbeeld de belangrijkste voetbalwedstrijden live kunnen volgen.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2015</h4>
+        <h2 class="title">Komst van Replay TV</h2>
+        <div class="content">
+          <p>Met Replay TV kunnen klanten nu alle tv-programma's bekijken die de vorige week zijn uitgezonden met hun Horizon Box of een speciale app.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">2016</h4>
+        <h2 class="title">Vodafone verkoopt Vodafone Thuis</h2>
+        <div class="content">
+          <p>Vodafone verkoopt Vodafone Thuis (vaste telefonie, internet en tv-diensten) aan T-Mobile.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">2016</h4>
+        <h2 class="title">Ziggo krijgt exclusief HBO</h2>
+        <div class="content">
+          <p>Ziggo wordt de exclusieve aanbieder van de HBO-serie in Nederland.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">2017</h4>
+        <h2 class="title">Fuseren van Vodafone Nederland en Ziggo</h2>
+        <div class="content">
+          <p>Vodafone Nederland en Ziggo fuseren tot een nieuw bedrijf, met Liberty Global en Vodafone Group als gelijkwaardige aandeelhouders.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Januari 2017</h4>
+        <h2 class="title">De lancering van VodafoneZiggo</h2>
+        <div class="content">
+          <p>Het nieuwe bedrijf richt zich op een gemeenschappelijk doel: plezier en vooruitgang bij elke verbinding.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">Juni 2017</h4>
+        <h2 class="title">IoT door heel Nederland</h2>
+        <div class="content">
+          <p>Vodafone introduceert een Internet of Things netwerk met landelijke dekking.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">Juli 2017</h4>
+        <h2 class="title">De Nederlandse overheid kiest voor Vodafone</h2>
+        <div class="content">
+          <p>Ambtenaren gaan flexibeler aan de slag dankzij mobiele diensten en data.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Maart 2018</h4>
+        <h2 class="title">Kabel-tv gaat digitaal</h2>
+        <div class="content">
+          <p>VodafoneZiggo stopt geleidelijk met het aanbieden van analoge televisie (gefaseerd): tv-kijken wordt volledig digitaal. Zo ontstaat er op ons netwerk ruimte voor sneller internet.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Mei 2018</h4>
+        <h2 class="title">TEC Campus</h2>
+        <div class="content">
+          <p>VodafoneZiggo introduceert de TEC Campus in Amsterdam en biedt daarmee een interactieve trainingslocatie voor technici.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Juni 2018</h4>
+        <h2 class="title">Monteurs op pad met een AED</h2>
+        <div class="content">
+          <p>Busjes van Ziggo monteurs zijn uitgerust met een AED. Bij een hartstilstand kunnen ze te hulp schieten.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Augustus 2018</h4>
+        <h2 class="title">Openbaar vervoer voor personeel</h2>
+        <div class="content">
+          <p>Vrijwel alle medewerkers pendelen nu gratis met het openbaar vervoer. Hiermee besparen we zo'n 3.500 ton CO₂ per jaar.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">September 2018</h4>
+        <h2 class="title">Wifi in rampgebied</h2>
+        <div class="content">
+          <p>Slachtoffers van een tyfoon in de Filipijnen kunnen dankzij vrijwilligers van Vodafone Foundation contact maken met dierbaren.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Oktober 2018</h4>
+        <h2 class="title">Nieuw kantoor in Utrecht</h2>
+        <div class="content">
+          <p>1.600 medewerkers verhuizen naar het nieuwe kantoor van VodafoneZiggo in hartje Utrecht.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Juli 2019</h4>
+        <h2 class="title">Mediabox Next</h2>
+        <div class="content">
+          <p>Ziggo lanceert de Mediabox Next. Het gebruiksgemak, de 4K beeldkwaliteit en snelheid zorgen voor enthousiaste reacties.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Augustus 2019</h4>
+        <h2 class="title">Aftrap GigaNet</h2>
+        <div class="content">
+          <p>Het gecombineerde mobiele en vaste netwerk van VodafoneZiggo krijgt een nieuwe naam: GigaNet.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">November 2019</h4>
+        <h2 class="title">Welcome Online</h2>
+        <div class="content">
+          <p>Introductie van het programma Welcome Online, waarmee ouderen kennis kunnen maken met internet.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">Februari 2020</h4>
+        <h2 class="title">3G loskoppelen</h2>
+        <div class="content">
+          <p>Vodafone begint met het deactiveren van het 3G-netwerk om plaats te maken voor een sneller en stabieler 4G-netwerk.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Juli 2020</h4>
+        <h2 class="title">Ziggo: Enjoy it all</h2>
+        <div class="content">
+          <p>Ziggo lanceert een nieuwe campagne en slogan. De focus ligt op het belang van connectiviteit: 'Enjoy it all'.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">Juli 2020</h4>
+        <h2 class="title">Vodafone biedt landelijk 5G</h2>
+        <div class="content">
+          <p>Door een versnelde uitrol introduceert Vodafone als eerste 5G landelijk.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">September 2020</h4>
+        <h2 class="title">People Planet Progress</h2>
+        <div class="content">
+          <p>VodafoneZiggo presenteert een nieuwe duurzaamheidsambitie voor 2025: People Planet Progress</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Oktober 2020</h4>
+        <h2 class="title">Hybride werkoplossingen</h2>
+        <div class="content">
+          <p>VodafoneZiggo ontwikkelt een hybride werkbeleid, waardoor thuiswerken gelijk staat aan werken op kantoor.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Oktober 2020</h4>
+        <h2 class="title">Ziggo introduceert SmartWifi</h2>
+        <div class="content">
+          <p>Met SmartWifi biedt Ziggo nieuwe slimme wifi-producten. Deze garanderen de beste wifi, zowel thuis als op kantoor.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">Februari 2021</h4>
+        <h2 class="title">Overschakelen naar digitale radio</h2>
+        <div class="content">
+          <p>Ziggo helpt klanten over te stappen van analoge naar digitale radio. De omschakeling maakt bandbreedte vrij voor sneller internet.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period1">
+        <h4 class="year">April 2021</h4>
+        <h2 class="title">Vodafone: Together we can</h2>
+        <div class="content">
+          <p>Vodafone kiest voor een nieuwe merkpositionering: Together we can. Technologie en menselijke ambitie staan centraal in deze nieuwe slogan.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">April 2021</h4>
+        <h2 class="title">Marketingprijs</h2>
+        <div class="content">
+          <p>VodafoneZiggo wint de Marketing Company of the Year Award 2021, uitgereikt door NIMA, Adformatie en PIM.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Juni 2021</h4>
+        <h2 class="title">Unlimited Learning</h2>
+        <div class="content">
+          <p>Medewerkers (en zakelijke klanten) kunnen via het onderwijsplatform Unlimited Learning honderden gratis trainingen volgen.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period3">
+        <h4 class="year">Oktober 2021</h4>
+        <h2 class="title">Priority</h2>
+        <div class="content">
+          <p>Met het prioriteitsprogramma krijgen klanten voorrang en voordelen bij het bestellen van tickets voor onder meer voetbalwedstrijden en concerten.</p>
+        </div>
+      </section>
+      <section class="card-single" period="period2">
+        <h4 class="year">December 2021</h4>
+        <h2 class="title">Recordcijfers op Ziggo Sport</h2>
+        <div class="content">
+          <p>Max Verstappen wordt in Abu Dhabi wereldkampioen Formule 1. 5,3 miljoen fans keken naar de race op Ziggo Sport.</p>
+        </div>
+      </section>
+    </div>
+    <!--   </div> -->
+    <!-- ###   -->
+  </div>
+  <!-- # component ends -->
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  "use strict";
+  class PRESTimeline {
+    constructor(target, color) {
+      // this.__process_stylesheet(document.styleSheets[0]);
+      this.base = target;
+      this.color = color;
+      // console.log(this.color)
+      this.periodContainer = $(this.base).find(".periods-container");
+      this.cardContainer = $(this.base).find(".cards-container");
+      this.timelineNodeContainer = $(this.base).find(".timeline-container .timeline");
+      // this.activePeriod = $(this.base).find('.periods-container section.active')
+      this._parseData();
+      this._initialColor();
+      this._generateTimeline();
+      this._setStateClasses();
+      this._assignBtn();
+      this._adjustPeriodContainer();
+      this._adjustCardContainer();
+      // console.log(this.cardData)
+    }
+    _parseData() {
+      let base = this.base;
+      let periods = $(base).find(".periods-container section");
+      for (let section of periods) {
+        section.period = $(section).attr("period");
+        section.index = $(section).index();
+      }
+      // console.log(periods)
+      this.periodData = periods;
+      let data = $(base).find(".cards-container section");
+      // console.log(data)
+      for (let section of data) {
+        section.period = $(section).attr("period");
+        section.index = $(section).index();
+      }
+      // console.log(data)
+      this.cardData = data;
+      // #assign initial entry point (active items)
+      this.activePeriod = this.periodData[0];
+      this.activePeriodIndex = 0;
+      this.activeCard = this.cardData[0];
+      this.activeCardIndex = 0;
+    }
+    _setStateClasses() {
+      // # periods
+      $(this.base).find(".periods-container section.active").removeClass("active");
+      $(this.base).find(".periods-container section.prev").removeClass("prev");
+      $(this.base).find(".periods-container section.next").removeClass("next");
+      // console.log("setclass: " + this.activePeriod.index)
+      $(this.activePeriod).addClass("active");
+      // console.log(this.activePeriod.index)
+      // this.activePeriodIndex = this.activePeriod.index
+      if ($(this.activePeriod).prev().length != 0) {
+        $(this.activePeriod).prev().addClass("prev");
+        $(this.base).find(".periods-container").removeClass("hide");
+      }
+      else {
+        $(this.base).find(".periods-container").addClass("hide");
+      }
+      if ($(this.activePeriod).next().length != 0) {
+        $(this.activePeriod).next().addClass("next");
+        $(this.base).find(".periods-container").removeClass("hide");
+      }
+      else {
+        $(this.base).find(".periods-container").addClass("hide");
+      }
+      // ## cards
+      $(this.base).find(".cards-container section.active").removeClass("active");
+      $(this.base).find(".cards-container section.prev").removeClass("prev");
+      $(this.base).find(".cards-container section.next").removeClass("next");
+      $(this.activeCard).addClass("active");
+      // this.activeCardIndex - this.activeCard.index
+      if ($(this.activeCard).prev().length != 0) {
+        $(this.activeCard).prev().addClass("prev");
+      }
+      if ($(this.activeCard).next().length != 0) {
+        $(this.activeCard).next().addClass("next");
+      }
+      // ## timeline
+      $(this.base).find(".timeline li.active").removeClass("active");
+      // let findNode = $(this.base).find('.timeline ol li')[this.activeCard.index]
+      $(this.timelineData[this.activeCard.index]).addClass("active");
+      let timelineB = $(this.base).find(".timeline-container .btn-back");
+      let timelineN = $(this.base).find(".timeline-container .btn-next");
+      // console.log($(timelineN))
+      if (this.activeCardIndex === 0) {
+        timelineB.addClass("hide");
+      }
+      else {
+        timelineB.removeClass("hide");
+      }
+      if (this.activeCardIndex >= this.cardData.length - 1) {
+        timelineN.addClass("hide");
+      }
+      else {
+        timelineN.removeClass("hide");
+      }
+    }
+    // ## timeline generater
+    _generateTimeline() {
+      // ## create node list
+      let htmlWrap = "<ol></ol>";
+      $(this.timelineNodeContainer).append(htmlWrap);
+      let wrap = $(this.timelineNodeContainer).find("ol");
+      let numNode = this.cardData.length;
+      for (let i = 0; i < numNode; i++) {
+        let c = this.cardData[i].color;
+        let el = wrap.append('<li class="' +
+          this.cardData[i].period +
+          '" style="border-color: ' +
+          c +
+          '"></li>');
+      }
+      // ## width of timeline
+      let nodeW = 200;
+      wrap.css("width", nodeW * numNode - 16);
+      let nodeList = $(this.base).find(".timeline ol li");
+      this.timelineData = nodeList;
+    }
+    // ## assign button actions
+    _assignBtn() {
+ /*     let periodPrev = $(this.base).find(".periods-container .btn-back");
+      let periodNext = $(this.base).find(".periods-container .btn-next");
+      periodPrev.click(() => {
+        if (this.activePeriodIndex > 0) {
+          // console.log('prev')
+          this.activePeriodIndex -= 1;
+          this.activePeriod = this.periodData[this.activePeriodIndex];
+          this._chainActions("period");
+          this._setStateClasses();
+        }
+        this._adjustPeriodContainer();
+      });
+      periodNext.click(() => {
+        if (this.activePeriodIndex < this.periodData.length - 1) {
+          // console.log('next' + this.activePeriodIndex)
+          this.activePeriodIndex += 1;
+          this.activePeriod = this.periodData[this.activePeriodIndex];
+          this._chainActions("period");
+          this._setStateClasses();
+        }
+        this._adjustPeriodContainer();
+      });*/
+      let timelinePrev = $(this.base).find(".timeline-container .btn-back");
+      let timelineNext = $(this.base).find(".timeline-container .btn-next");
+      timelinePrev.click(() => {
+        if (this.activeCardIndex > 0) {
+          this.activeCardIndex -= 1;
+          this.activeCard = this.cardData[this.activeCardIndex];
+          this._chainActions("timeline");
+          this._setStateClasses();
+        }
+        this._adjustCardContainer();
+        this._adjustPeriodContainer();
+      });
+      timelineNext.click(() => {
+        if (this.activeCardIndex < this.cardData.length - 1) {
+          this.activeCardIndex += 1;
+          this.activeCard = this.cardData[this.activeCardIndex];
+          this._chainActions("timeline");
+          this._setStateClasses();
+        }
+        this._adjustCardContainer();
+        this._adjustPeriodContainer();
+      });
+      // ## assign each timeline li
+      for (let i = 0; i < this.timelineData.length; i++) {
+        $(this.timelineData[i]).click(() => {
+          this.activeCardIndex = this.cardData[i].index;
+          this.activeCard = this.cardData[this.activeCardIndex];
+          this._chainActions("timeline");
+          this._setStateClasses();
+          this._adjustCardContainer();
+          this._shiftTimeline();
+        });
+      }
+    }
+    // ## color ##
+    _initialColor() {
+      for (let i = 0; i < this.periodData.length; i++) {
+        let p = this.periodData[i].period;
+        this.periodData[i].color = this.color[p];
+        let temp = this.periodData[i];
+        $(temp).css("border-color", temp.color);
+        $(temp).find(".year").css("color", temp.color);
+        // ## color for timeline items, this part utilize the period name as class which will be add to the li later
+        // ### cross browser bug fix
+        let sbstyle = document.createElement("style");
+        document.head.appendChild(sbstyle);
+        // let sheet = document.styleSheets[0]
+        sbstyle.sheet.insertRule("li." +
+          p +
+          ".active { background-color: " +
+          this.color[p] +
+          " !important } ", 0);
+        sbstyle.sheet.insertRule("li." + p + "::before { background-color: " + this.color[p] + " } ", 0);
+        sbstyle.sheet.insertRule("li." + p + "::after { background-color: " + this.color[p] + " } ", 0);
+      }
+      for (let i = 0; i < this.cardData.length; i++) {
+        let p = this.cardData[i].period;
+        this.cardData[i].color = this.color[p];
+        let temp = this.cardData[i];
+        $(temp).css("border-color", temp.color);
+        $(temp).find(".year").css("color", temp.color);
+      }
+    }
+    _adjustPeriodContainer() {
+      let activeH = $(this.activePeriod).outerHeight();
+      $(this.periodContainer).height(activeH);
+      console.log("top adjusted");
+    }
+    _adjustCardContainer() {
+      let activeH = $(this.activeCard).outerHeight() + 24;
+      $(this.cardContainer).height(activeH);
+      console.log("bot adjusted");
+    }
+    _shiftTimeline() {
+      // #### We need to fix this part if using this component in different sizes ####
+      let timelineW = $(this.base).find(".timeline-container").outerWidth();
+      let timelinePadding = 210;
+      let timelineCenter = 300;
+      let liWidth = 16;
+      let activeNodeX = $(this.timelineData[this.activeCardIndex]).position().left;
+      let finalPos = -activeNodeX + timelinePadding;
+      $(this.timelineNodeContainer).css("left", finalPos);
+      console.log(activeNodeX);
+    }
+    _chainActions(state) {
+      switch (state) {
+        case "period":
+          console.log("period");
+          if (this.activePeriod.period !== this.activeCard.period) {
+            // ## find the closest li with the active period
+            let ta = [];
+            for (let i = 0; i < this.cardData.length; i++) {
+              let temp = this.cardData[i];
+              if (this.activePeriod.period === temp.period)
+                ta.push(temp);
+            }
+            this.activeCard = ta[0];
+            this.activeCardIndex = ta[0].index;
+          }
+          break;
+        case "timeline":
+          console.log("timeline");
+          if (this.activeCard.period !== this.activePeriod.period) {
+            let ta;
+            for (let i = 0; i < this.periodData.length; i++) {
+              let temp = this.periodData[i];
+              if (this.activeCard.period === temp.period)
+                ta = temp;
+            }
+            this.activePeriod = ta;
+            this.activePeriodIndex = ta.index;
+          }
+          break;
+      }
+      this._shiftTimeline();
+      this._adjustCardContainer();
+    }
+  }
+  // ## document load ##
+  $(document).ready(function () {
+    let colorcode = {
+      period1: "#e60000",
+      period2: "#f48c00",
+      period3: "#000000"
+    };
+    let timeline = new PRESTimeline($("#this-timeline"), colorcode);
+  });
+
+</script>
